@@ -1,32 +1,43 @@
-const { create } = require("node:domain");
+const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
 const User = require("../models/User");
 
-const userController = {
-    //GET /users
-    getAllUsers: async (req, res) => {
-        try {
-            const users = await User.getAllUsers()
-            console.log("** GET getAllUsers NOT SUCCESSFULL **");
-            res.json(users);
-        } catch (err) {
-            res.status(500).json({ error: "Failed to fetch users" });}
-            console.log("** GET getAllUsers **");
-            
-        },
-        // post createuser
-        create: async (req, res) => {
-            const { name, email } = req.body;
-            if (!name || !email) {
-                 console.log("** GET getAllUsers NOT SUCCESSFULL **");
-                return res.status(400).json({ error: "Name and email are required" });
-            }
-            try {
-                const userId = await User.create(name, email);
-                res.status(201).json({ message: `User created with ID: ${userId}`, name, email });
-            } catch (err) {
-                 console.log("** GET getAllUsers NOT SUCCESSFULL **");
-                res.status(500).json({ error: err});}
-            }
-            };
+exports.register = async (req, res) => {
+  try {
+    const { name, email, password } = req.body;
 
-            module.exports = userController;
+    const hashed = await bcrypt.hash(password, 10);
+
+    await User.create({
+      name,
+      email,
+      password: hashed
+    });
+
+    res.status(201).json({ msg: "User registered" });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+exports.login = async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    const user = await User.findOne({ where: { email } });
+    if (!user) return res.status(404).json({ msg: "User not found" });
+
+    const valid = await bcrypt.compare(password, user.password);
+    if (!valid) return res.status(401).json({ msg: "Wrong password" });
+
+    const token = jwt.sign(
+      { id: user.userId },
+      "smartplus_secret",
+      { expiresIn: "7d" }
+    );
+
+    res.json({ token });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
