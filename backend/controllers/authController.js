@@ -13,6 +13,7 @@ const userController = {
             console.log("** GET getAllUsers **");
             
         },
+        // post createuser
         create: async (req, res) => {
             const { name, email } = req.body;
             if (!name || !email) {
