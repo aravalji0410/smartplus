@@ -5,25 +5,30 @@ require("dotenv").config();
 const app = express();
 app.use(express.json());
 
-// routes
-app.use("/api/auth", require("./routes/authRoutes"));
-app.use("/api/groups", require("./routes/groupRoutes"));
-app.use("/api/expenses", require("./routes/expenseRoutes"));
+// Routes (wrap in try/catch for safety)
+try {
+  app.use("/api/auth", require("./routes/authRoutes"));
+  app.use("/api/groups", require("./routes/groupRoutes"));
+  app.use("/api/expenses", require("./routes/expenseRoutes"));
+} catch (err) {
+  console.error("Route loading error:", err);
+}
 
-// health route
-app.get("/", (req, res) => {
-  res.send("Smart+ API running");
-});
+// Health check
+app.get("/", (req, res) => res.send("Smart+ API running"));
 
+// Port
 const PORT = process.env.PORT || 5000;
 
-// IMPORTANT: start server EVEN if DB fails
-app.listen(PORT, () => {
-  console.log("Server running on port " + PORT);
-});
+// Start server
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 
-// DB connect separately
-sequelize
-  .authenticate()
-  .then(() => console.log("DB connected"))
-  .catch(err => console.error("DB error:", err));
+// DB connect asynchronously (won't crash server if DB fails)
+(async () => {
+  try {
+    await sequelize.authenticate();
+    console.log("DB connected");
+  } catch (err) {
+    console.error("DB connection failed:", err);
+  }
+})();
