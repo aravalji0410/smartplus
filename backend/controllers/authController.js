@@ -8,11 +8,8 @@ exports.register = async (req, res) => {
 
     const hashed = await bcrypt.hash(password, 10);
 
-    await User.create({
-      name,
-      email,
-      password: hashed
-    });
+    // raw query model method
+    await User.create(name, email, hashed);
 
     res.status(201).json({ msg: "User registered" });
   } catch (err) {
@@ -24,15 +21,15 @@ exports.login = async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    const user = await User.findOne({ where: { email } });
+    const user = await User.findByEmail(email);
     if (!user) return res.status(404).json({ msg: "User not found" });
 
     const valid = await bcrypt.compare(password, user.password);
     if (!valid) return res.status(401).json({ msg: "Wrong password" });
 
     const token = jwt.sign(
-      { id: user.userId },
-      "smartplus_secret",
+      { id: user.id },
+      process.env.JWT_SECRET,
       { expiresIn: "7d" }
     );
 

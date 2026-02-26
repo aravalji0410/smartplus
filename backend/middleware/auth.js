@@ -7,11 +7,12 @@ module.exports = (req, res, next) => {
 
   try {
     const token = header.split(" ")[1];
-    const decoded = jwt.verify(token, "smartplus_secret");
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
+    // attach id for controllers
     req.userId = decoded.id;
     next();
-  } catch {
+  } catch (err) {
     res.status(401).json({ msg: "Invalid token" });
   }
 };

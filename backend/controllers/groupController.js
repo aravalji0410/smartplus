@@ -1,53 +1,65 @@
 const groupModel = require("../models/groupModel");
 
 // CREATE GROUP
-exports.createGroup = (req, res) => {
-  const { name } = req.body;
-  const userId = req.user.id;
+exports.createGroup = async (req, res) => {
+  try {
+    const { name } = req.body;
+    const userId = req.userId;
 
-  groupModel.createGroup(name, userId, (err, result) => {
-    if (err) return res.status(500).json(err);
-
+    const result = await groupModel.createGroup(name, userId);
     const groupId = result.insertId;
 
     // add creator as member
-    groupModel.addMember(groupId, userId, () => {
-      res.status(201).json({
-        message: "Group created",
-        groupId: groupId,
-      });
+    await groupModel.addMember(groupId, userId);
+
+    res.status(201).json({
+      message: "Group created",
+      groupId: groupId,
     });
-  });
+  } catch (err) {
+    res.status(500).json(err);
+  }
 };
 
 // GET GROUPS
-exports.getGroups = (req, res) => {
-  groupModel.getUserGroups(req.user.id, (err, results) => {
-    if (err) return res.status(500).json(err);
+exports.getGroups = async (req, res) => {
+  try {
+    const results = await groupModel.getUserGroups(req.userId);
     res.json(results);
-  });
+  } catch (err) {
+    res.status(500).json(err);
+  }
 };
 
 // GET ONE
-exports.getGroup = (req, res) => {
-  groupModel.getGroupById(req.params.id, (err, result) => {
-    if (err) return res.status(500).json(err);
-    res.json(result[0]);
-  });
+exports.getGroup = async (req, res) => {
+  try {
+    const results = await groupModel.getGroupById(req.params.id);
+    if (!results || results.length === 0) return res.status(404).json({ msg: "Group not found" });
+    res.json(results[0]);
+  } catch (err) {
+    res.status(500).json(err);
+  }
 };
 
 // UPDATE
-exports.updateGroup = (req, res) => {
-  groupModel.updateGroup(req.params.id, req.body.name, (err) => {
-    if (err) return res.status(500).json(err);
+exports.updateGroup = async (req, res) => {
+  try {
+    const result = await groupModel.updateGroup(req.params.id, req.body.name);
+    if (result.affectedRows === 0) return res.status(404).json({ msg: "Group not found" });
     res.json({ message: "Group updated" });
-  });
+  } catch (err) {
+    res.status(500).json(err);
+  }
 };
 
 // DELETE
-exports.deleteGroup = (req, res) => {
-  groupModel.deleteGroup(req.params.id, (err) => {
-    if (err) return res.status(500).json(err);
+exports.deleteGroup = async (req, res) => {
+  try {
+    const result = await groupModel.deleteGroup(req.params.id);
+    if (result.affectedRows === 0) return res.status(404).json({ msg: "Group not found" });
     res.json({ message: "Group deleted" });
-  });
+  } catch (err) {
+    res.status(500).json(err);
+  }
 };
