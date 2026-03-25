@@ -21,7 +21,7 @@ app.get("/", (req, res) => {
   res.send("Smart+ API running");
 });
 
-// IMPORTANT: use Render port
+// Port (Render compatible)
 const PORT = process.env.PORT || 5000;
 
 // Start server
