@@ -2,7 +2,26 @@ const db = require("../config/db");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 
-// LOGIN FUNCTION
+// REGISTER
+exports.register = async (req, res) => {
+  const { email, password } = req.body;
+
+  try {
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    await db.query(
+      "INSERT INTO Users (email, password) VALUES (?, ?)",
+      [email, hashedPassword]
+    );
+
+    res.json({ msg: "User registered" });
+
+  } catch (err) {
+    res.status(500).json({ msg: "Error registering user" });
+  }
+};
+
+// LOGIN
 exports.login = async (req, res) => {
   const { email, password } = req.body;
 
