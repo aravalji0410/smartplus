@@ -1,7 +1,17 @@
-const router = require("express").Router();
-const { register, login } = require("../controllers/authController");
+exports.register = async (req, res) => {
+  const { email, password } = req.body;
 
-router.post("/register", register);
-router.post("/login", login);
+  try {
+    const hashedPassword = await bcrypt.hash(password, 10);
 
-module.exports = router;
+    await db.query(
+      "INSERT INTO Users (email, password) VALUES (?, ?)",
+      [email, hashedPassword]
+    );
+
+    res.json({ msg: "User registered" });
+
+  } catch (err) {
+    res.status(500).json({ msg: "Error registering user" });
+  }
+};
