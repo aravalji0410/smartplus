@@ -1,53 +1,64 @@
 body {
   margin: 0;
-  font-family: "Segoe UI", sans-serif;
-  background: linear-gradient(135deg, #4facfe, #00f2fe);
+  font-family: "Poppins", sans-serif;
+  background: linear-gradient(135deg, #667eea, #764ba2);
 }
 
 .container {
-  text-align: center;
-  padding-top: 80px;
+  max-width: 900px;
+  margin: auto;
+  padding: 20px;
+  color: white;
 }
 
 h1 {
-  color: white;
+  text-align: center;
   margin-bottom: 30px;
 }
 
 .card {
-  background: white;
-  padding: 30px;
-  width: 300px;
-  margin: auto;
+  background: rgba(255, 255, 255, 0.15);
+  padding: 20px;
   border-radius: 15px;
-  box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+  margin-bottom: 20px;
+  backdrop-filter: blur(10px);
+}
+
+.card h2 {
+  margin-bottom: 10px;
 }
 
 input {
-  display: block;
   width: 100%;
-  margin: 10px 0;
   padding: 10px;
-  border-radius: 8px;
-  border: 1px solid #ddd;
-}
-
-.buttons {
-  display: flex;
-  justify-content: space-between;
+  border-radius: 10px;
+  border: none;
+  margin-bottom: 10px;
 }
 
 button {
-  flex: 1;
-  margin: 5px;
+  width: 100%;
   padding: 10px;
   border: none;
-  background: #4facfe;
+  border-radius: 10px;
+  background: #00c6ff;
   color: white;
-  border-radius: 8px;
   cursor: pointer;
+  font-weight: bold;
 }
 
 button:hover {
-  background: #007bff;
+  background: #0072ff;
+}
+
+.item {
+  padding: 10px;
+  background: rgba(255, 255, 255, 0.25);
+  margin-top: 5px;
+  border-radius: 8px;
+}
+
+.warning {
+  background: rgba(255, 0, 0, 0.3);
+  text-align: center;
 }
