@@ -10,10 +10,15 @@ function App() {
 
   const token = localStorage.getItem("token");
 
- 
   const API = "https://smartplus.onrender.com/api";
 
-  // Fetch Groups
+  useEffect(() => {
+    if (token) {
+      fetchGroups();
+      fetchExpenses();
+    }
+  }, []);
+
   const fetchGroups = async () => {
     try {
       const res = await axios.get(`${API}/groups`, {
@@ -25,7 +30,6 @@ function App() {
     }
   };
 
-  // Fetch Expenses
   const fetchExpenses = async () => {
     try {
       const res = await axios.get(`${API}/expenses`, {
@@ -37,17 +41,7 @@ function App() {
     }
   };
 
-  useEffect(() => {
-    if (token) {
-      fetchGroups();
-      fetchExpenses();
-    }
-  }, [token]);
-
-  // Create Group
   const createGroup = async () => {
-    if (!groupName) return alert("Enter group name");
-
     try {
       await axios.post(
         `${API}/groups`,
@@ -61,17 +55,12 @@ function App() {
     }
   };
 
-  // Add Expense
   const addExpense = async () => {
-    if (!amount || groups.length === 0) {
-      return alert("Add group first!");
-    }
-
     try {
       await axios.post(
         `${API}/expenses`,
         {
-          groupId: groups[0].groupId,
+          groupId: groups[0]?.groupId,
           amount,
           splitType: "equal",
           category: "general",
@@ -88,64 +77,48 @@ function App() {
 
   return (
     <div className="container">
-      <h1>💸 Smart+ Expense Manager</h1>
+      <h1>💸 Smart+ Dashboard</h1>
 
-      {!token && (
-        <div className="card warning">
-          ⚠️ No token found. Please login first.
-        </div>
-      )}
+      {!token && <p>Please add token in console</p>}
 
-      {/* Create Group */}
       <div className="card">
         <h2>Create Group</h2>
         <input
           type="text"
-          placeholder="Enter group name"
+          placeholder="Group name"
           value={groupName}
           onChange={(e) => setGroupName(e.target.value)}
         />
-        <button onClick={createGroup}>Create Group</button>
+        <button onClick={createGroup}>Add Group</button>
       </div>
 
-      {/* Groups */}
       <div className="card">
-        <h2>Your Groups</h2>
-        {groups.length === 0 ? (
-          <p>No groups yet</p>
-        ) : (
-          groups.map((g) => (
-            <div key={g.groupId} className="item">
-              {g.name}
-            </div>
-          ))
-        )}
+        <h2>Groups</h2>
+        {groups.map((g) => (
+          <div key={g.groupId} className="item">
+            {g.name}
+          </div>
+        ))}
       </div>
 
-      {/* Add Expense */}
       <div className="card">
         <h2>Add Expense</h2>
         <input
           type="number"
-          placeholder="Enter amount"
+          placeholder="Amount"
           value={amount}
           onChange={(e) => setAmount(e.target.value)}
         />
         <button onClick={addExpense}>Add Expense</button>
       </div>
 
-      {/* Expenses */}
       <div className="card">
         <h2>Expenses</h2>
-        {expenses.length === 0 ? (
-          <p>No expenses yet</p>
-        ) : (
-          expenses.map((e) => (
-            <div key={e.expenseId} className="item">
-              ₹{e.amount} • {e.category}
-            </div>
-          ))
-        )}
+        {expenses.map((e) => (
+          <div key={e.expenseId} className="item">
+            ₹{e.amount}
+          </div>
+        ))}
       </div>
     </div>
   );
